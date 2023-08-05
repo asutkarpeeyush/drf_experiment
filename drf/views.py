@@ -11,6 +11,8 @@ from rest_framework import generics
 from rest_framework import mixins
 from rest_framework import viewsets
 from rest_framework.versioning import NamespaceVersioning
+from rest_framework.exceptions import PermissionDenied
+from .exceptions import InvalidPersonDetailsException
 
 
 class CustomVersioning(NamespaceVersioning):
@@ -26,13 +28,17 @@ class PersonViewSet(viewsets.ModelViewSet):
     # versioning_class = CustomVersioning
     # lookup_url_kwarg = 'pk'
 
-    def retrieve(self, request, *args, **kwargs):
-        if request.version:
-            if request.version == 'v1':
-                print(f"This version is the old implementation")
-            if request.version == 'v2':
-                print(f"This version is the new implementation")
-        return super().retrieve(request, *args, **kwargs)
+    # This was to showcase throwing exceptions
+    # def retrieve(self, request, *args, **kwargs):
+    #     if request.version:
+    #         if request.version == 'v1':
+    #             print(f"This version is the old implementation")
+    #         if request.version == 'v2':
+    #             print(f"This version is the new implementation")
+    #     # return super().retrieve(request, *args, **kwargs)
+    #     # return Response(status=status.HTTP_400_BAD_REQUEST)
+    #     # raise PermissionDenied(detail="Overriding retreive for testing")
+    #     raise InvalidPersonDetailsException(detail="Custom invalid request")
 
 
 ########### Class based Views with Generic Views #################

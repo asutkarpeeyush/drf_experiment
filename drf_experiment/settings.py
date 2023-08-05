@@ -125,7 +125,12 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
+    # versioning
     'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.NamespaceVersioning',
     'DEFAULT_VERSION': 'v1',
-    'ALLOWED_VERSIONS': ['v1']
+    'ALLOWED_VERSIONS': ['v1'],
+
+    # exceptions
+    # 'EXCEPTION_HANDLER': 'rest_framework.views.exception_handler'
+    'EXCEPTION_HANDLER': 'drf.exceptions.custom_exception_handler'
 }

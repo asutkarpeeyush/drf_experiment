@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Person
+from .exceptions import InvalidPersonDetailsException
 
 
 class PersonSerializer(serializers.Serializer):
@@ -26,3 +27,12 @@ class PersonSerializer(serializers.Serializer):
 
         instance.save()
         return instance
+
+    def validate(self, attrs):
+        # This function is only called during serilaizer .is_valid()
+        # add business validation
+        age = attrs.get('age')
+        if age and age > 50:
+            raise InvalidPersonDetailsException(
+                detail="People above 50 aren't allowed.")
+        return super().validate(attrs)

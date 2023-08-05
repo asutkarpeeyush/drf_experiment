@@ -1,16 +1,125 @@
-from django.http import HttpRequest, JsonResponse
 from rest_framework.response import Response
+from rest_framework.request import Request
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render
 from .models import Person
 from .serializers import PersonSerializer
 from rest_framework.decorators import api_view
 from rest_framework import status
+from rest_framework.views import APIView
+from rest_framework import generics
+from rest_framework import mixins
+from rest_framework import viewsets
+
+########### Views sets #################
+
+
+class PersonViewSet(viewsets.ModelViewSet):
+    queryset = Person.objects.all()
+    serializer_class = PersonSerializer
+    # lookup_url_kwarg = 'pk'
+
+
+########### Class based Views with Generic Views #################
+
+
+class PeopleDetailsUsingGenerics(generics.ListCreateAPIView):
+    queryset = Person.objects.all()
+    serializer_class = PersonSerializer
+
+
+class PersonDetailsUsingGenerics(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Person.objects.all()
+    serializer_class = PersonSerializer
+    lookup_url_kwarg = 'person'
+
+
+########### Class based Views with Mixins #################
+
+
+class PeopleDetailsUsingMixin(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
+    # fetch DB objects (bulk/single)
+    # using serialiser
+    # sending response
+    queryset = Person.objects.all()
+    serializer_class = PersonSerializer
+
+    def get(self, request: Request, format=None, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+
+
+class PersonDetailsUsingMixin(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
+    queryset = Person.objects.all()
+    serializer_class = PersonSerializer
+    lookup_url_kwarg = 'person'
+
+    def get(self, request: Request, format=None, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
+
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
+
+
+########### Class based Views #################
+
+
+class PeopleDetails(APIView):
+    def get(self, request: Request, format=None):
+        people = Person.objects.all()
+        # deserialisation (DB -> JSON Response)
+        ser_response = PersonSerializer(people, many=True)
+        return Response(ser_response.data)
+
+    def post(self, request: Request, format=None):
+        # ser [data format (JSON/FORM) request -> DB]
+        ser_request = PersonSerializer(data=request.data)
+        if not ser_request.is_valid():
+            return Response(ser_request.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        # this is serilializer save
+        ser_request.save()
+        return Response(ser_request.data, status=status.HTTP_201_CREATED)
+
+
+class PersonDetails(APIView):
+    def get_object(self, person_id: int):
+        try:
+            person = Person.objects.get(pk=person_id)
+        except Person.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        return person
+
+    def get(self, request: Request, person_id: int, format=None):
+        person = self.get_object(person_id)
+        ser_response = PersonSerializer(person)
+        return Response(ser_response.data)
+
+    def put(self, request: Request, person_id: int, format=None):
+        person = self.get_object(person_id)
+        ser_response = PersonSerializer(person, data=request.data)
+        if not ser_response.is_valid():
+            return Response(ser_response.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        ser_response.save()
+        return Response(ser_response.data, status=status.HTTP_201_CREATED)
+
+    def delete(self, request: Request, person_id: int, format=None):
+        person = self.get_object(person_id)
+        person.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+########### Function based Views #################
 
 
 @api_view(['GET', 'POST'])
 @csrf_exempt
-def person_details(request: HttpRequest):
+def people_details(request: Request, format=None):
     if request.method == 'GET':
         people = Person.objects.all()
         # deserialisation (DB -> JSON Response)
@@ -21,11 +130,41 @@ def person_details(request: HttpRequest):
         # ser [data format (JSON/FORM) request -> DB]
         ser_request = PersonSerializer(data=request.data)
         if not ser_request.is_valid():
-            print(ser_request.data)
             return Response(ser_request.errors, status=status.HTTP_400_BAD_REQUEST)
 
         # this is serilializer save
-        print(ser_request.data)
+        ser_request.save()
         return Response(ser_request.data, status=status.HTTP_201_CREATED)
+
+    return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
+
+
+@api_view(['GET', 'PUT', 'DELETE'])
+@csrf_exempt
+def person_details(request: Request, person_id: int, format=None):
+    try:
+        person = Person.objects.get(pk=person_id)
+    except Person.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        ser_response = PersonSerializer(person)
+        return Response(ser_response.data)
+
+    if request.method in ['PUT', 'PATCH']:
+        partial = False
+        if request.method == 'PATCH':
+            partial = True
+        ser_response = PersonSerializer(
+            person, data=request.data, partial=partial)
+        if not ser_response.is_valid():
+            return Response(ser_response.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        ser_response.save()
+        return Response(ser_response.data, status=status.HTTP_201_CREATED)
+
+    if request.method == "DELETE":
+        person.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     return Response(status=status.HTTP_501_NOT_IMPLEMENTED)

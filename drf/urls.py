@@ -48,7 +48,8 @@ urlpatterns = [
     # path('details/<person>', person_view, name='drf_person_details'),
 
     # url conf using routers
-    path('', include(drf_router.urls))
+    path('v1/', include((drf_router.urls, 'drf'), namespace='v1')),
+    path('v2/', include((drf_router.urls, 'drf'), namespace='v2'))
 ]
 
 # urlpatterns = format_suffix_patterns(urlpatterns)

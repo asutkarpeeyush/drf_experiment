@@ -10,6 +10,12 @@ from rest_framework.views import APIView
 from rest_framework import generics
 from rest_framework import mixins
 from rest_framework import viewsets
+from rest_framework.versioning import NamespaceVersioning
+
+
+class CustomVersioning(NamespaceVersioning):
+    default_version = 'v1'
+    allowed_versions = ['v1']
 
 ########### Views sets #################
 
@@ -17,7 +23,16 @@ from rest_framework import viewsets
 class PersonViewSet(viewsets.ModelViewSet):
     queryset = Person.objects.all()
     serializer_class = PersonSerializer
+    # versioning_class = CustomVersioning
     # lookup_url_kwarg = 'pk'
+
+    def retrieve(self, request, *args, **kwargs):
+        if request.version:
+            if request.version == 'v1':
+                print(f"This version is the old implementation")
+            if request.version == 'v2':
+                print(f"This version is the new implementation")
+        return super().retrieve(request, *args, **kwargs)
 
 
 ########### Class based Views with Generic Views #################

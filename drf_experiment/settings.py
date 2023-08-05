@@ -134,3 +134,5 @@ REST_FRAMEWORK = {
     # 'EXCEPTION_HANDLER': 'rest_framework.views.exception_handler'
     'EXCEPTION_HANDLER': 'drf.exceptions.custom_exception_handler'
 }
+
+LOGIN_REDIRECT_URL = '/v1/details'

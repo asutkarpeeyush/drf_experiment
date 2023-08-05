@@ -1,6 +1,21 @@
 from rest_framework import serializers
 from .models import Person
 from .exceptions import InvalidPersonDetailsException
+from django.contrib.auth.models import User
+from .models import Person
+
+
+class UserSerializer(serializers.ModelSerializer):
+    people = serializers.PrimaryKeyRelatedField(
+        many=True, read_only=True)
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'password', 'people']
+        read_only_fields = []
+        extra_kwargs = {
+            'password': {'write_only': True}
+        }
 
 
 class PersonSerializer(serializers.Serializer):
@@ -9,6 +24,8 @@ class PersonSerializer(serializers.Serializer):
     age = serializers.IntegerField()
     address = serializers.CharField(max_length=200)
     subject = serializers.ChoiceField(choices=Person.subject_choices)
+    updated_by = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all())
 
     # TODO: remove these overrides
     # These are only called from .save() function
@@ -24,6 +41,8 @@ class PersonSerializer(serializers.Serializer):
         instance.age = validated_data.get('age', instance.age)
         instance.address = validated_data.get('address', instance.address)
         instance.subject = validated_data.get('subject', instance.subject)
+        instance.updated_by = validated_data.get(
+            'updated_by', instance.updated_by)
 
         instance.save()
         return instance

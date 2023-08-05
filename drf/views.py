@@ -3,7 +3,7 @@ from rest_framework.request import Request
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render
 from .models import Person
-from .serializers import PersonSerializer
+from .serializers import PersonSerializer, UserSerializer
 from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework.views import APIView
@@ -13,6 +13,8 @@ from rest_framework import viewsets
 from rest_framework.versioning import NamespaceVersioning
 from rest_framework.exceptions import PermissionDenied
 from .exceptions import InvalidPersonDetailsException
+from django.contrib.auth.models import User
+from rest_framework import permissions
 
 
 class CustomVersioning(NamespaceVersioning):
@@ -22,9 +24,17 @@ class CustomVersioning(NamespaceVersioning):
 ########### Views sets #################
 
 
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    # TODO: only allow superusers to do any operation here
+    permission_classes = [permissions.IsAuthenticated]
+
+
 class PersonViewSet(viewsets.ModelViewSet):
     queryset = Person.objects.all()
     serializer_class = PersonSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     # versioning_class = CustomVersioning
     # lookup_url_kwarg = 'pk'
 

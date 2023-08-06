@@ -13,8 +13,12 @@ from rest_framework import viewsets
 from rest_framework.versioning import NamespaceVersioning
 from rest_framework.exceptions import PermissionDenied
 from .exceptions import InvalidPersonDetailsException
-from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from rest_framework import permissions
+from .permissions import HasUpdatedOrNoOwner
+
+User = get_user_model()
 
 
 class CustomVersioning(NamespaceVersioning):
@@ -34,7 +38,12 @@ class UserViewSet(viewsets.ModelViewSet):
 class PersonViewSet(viewsets.ModelViewSet):
     queryset = Person.objects.all()
     serializer_class = PersonSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    # authentication_classes = [SessionAuthentication, BasicAuthentication]
+    permission_classes = [
+        permissions.IsAuthenticated,
+        # permissions.IsAuthenticatedOrReadOnly, 
+        HasUpdatedOrNoOwner
+    ]
     # versioning_class = CustomVersioning
     # lookup_url_kwarg = 'pk'
 

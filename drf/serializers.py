@@ -1,21 +1,33 @@
 from rest_framework import serializers
 from .models import Person
 from .exceptions import InvalidPersonDetailsException
-from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from .models import Person
+from django.contrib.auth.hashers import make_password
+
+User = get_user_model()
 
 
 class UserSerializer(serializers.ModelSerializer):
     people = serializers.PrimaryKeyRelatedField(
         many=True, read_only=True)
+    password = serializers.CharField(
+        write_only=True,
+        required=True
+    )
 
     class Meta:
         model = User
         fields = ['id', 'username', 'password', 'people']
         read_only_fields = []
-        extra_kwargs = {
-            'password': {'write_only': True}
-        }
+        # extra_kwargs = {
+        #     'password': {'write_only': True}
+        # }
+
+    def create(self, validated_data):
+        validated_data['password'] = make_password(validated_data.get('password', ''))
+        return super().create(validated_data)
 
 
 class PersonSerializer(serializers.Serializer):

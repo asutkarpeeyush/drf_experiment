@@ -17,6 +17,9 @@ from .exceptions import InvalidPersonDetailsException
 from django.contrib.auth import get_user_model
 from rest_framework import permissions
 from .permissions import HasUpdatedOrNoOwner
+from .pagination import CustomPagination
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 
 User = get_user_model()
 
@@ -33,6 +36,7 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     # TODO: only allow superusers to do any operation here
     permission_classes = [permissions.IsAuthenticated]
+    throttle_scope = 'users'
 
 
 class PersonViewSet(viewsets.ModelViewSet):
@@ -46,6 +50,17 @@ class PersonViewSet(viewsets.ModelViewSet):
     ]
     # versioning_class = CustomVersioning
     # lookup_url_kwarg = 'pk'
+    pagination_class = CustomPagination
+    throttle_scope = 'person'
+
+    @method_decorator(cache_page(5))
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def retrieve(self, request, *args, **kwargs):
+        print(f"X For {request.META.get('HTTP_X_FORWARDED_FOR')}")
+        print(f"Remote addr {request.META.get('REMOTE_ADDR')}")
+        return super().retrieve(request, *args, **kwargs)
 
     # This was to showcase throwing exceptions
     # def retrieve(self, request, *args, **kwargs):

@@ -33,7 +33,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'drf',
-    'users',
+    # 'users',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -48,9 +48,11 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'django.middleware.cache.UpdateCacheMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'django.middleware.cache.FetchFromCacheMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -130,6 +132,14 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.memcached.PyMemcacheCache",
+        "LOCATION": "127.0.0.1:11211",
+        "TIMEOUT": 1
+    }
+}
+
 REST_FRAMEWORK = {
     # authentication
     'DEFAULT_AUTHENTICATION_CLASSES': [
@@ -147,7 +157,27 @@ REST_FRAMEWORK = {
 
     # exceptions
     # 'EXCEPTION_HANDLER': 'rest_framework.views.exception_handler'
-    'EXCEPTION_HANDLER': 'drf.exceptions.custom_exception_handler'
+    'EXCEPTION_HANDLER': 'drf.exceptions.custom_exception_handler',
+
+    # pagination
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    # 'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    # 'DEFAULT_PAGINATION_CLASS': 'drf.pagination.CustomPagination',
+    'PAGE_SIZE': 1,
+
+    # throttling
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle'
+        # 'rest_framework.throttling.ScopedRateThrottle',
+        # 'drf.throttling.RandomThrottle'
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '1/day',
+        'user': '1/day'
+        # 'users': '1/day',
+        # 'person': '2/day'
+    }
 }
 
 SIMPLE_JWT = {
@@ -157,4 +187,4 @@ SIMPLE_JWT = {
 
 LOGIN_REDIRECT_URL = '/v1/details'
 
-AUTH_USER_MODEL = 'users.DRFUser'
+# AUTH_USER_MODEL = 'users.DRFUser'

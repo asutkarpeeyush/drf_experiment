@@ -44,7 +44,10 @@ INSTALLED_APPS = [
     # DRF
     'rest_framework',
     'rest_framework.authtoken',
-    'rest_framework_simplejwt'
+    # 'rest_framework_simplejwt'
+
+    # documentation
+    'drf_yasg',
 ]
 
 MIDDLEWARE = [
@@ -147,7 +150,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
         # 'rest_framework.authentication.TokenAuthentication'
         'drf.authentication.CustomTokenAuthentication',
-        'rest_framework_simplejwt.authentication.JWTAuthentication'
+        # 'rest_framework_simplejwt.authentication.JWTAuthentication'
     ],
 
     # versioning
@@ -173,17 +176,17 @@ REST_FRAMEWORK = {
         # 'drf.throttling.RandomThrottle'
     ],
     'DEFAULT_THROTTLE_RATES': {
-        'anon': '1/day',
-        'user': '1/day'
+        'anon': '1000/day',
+        'user': '1000/day'
         # 'users': '1/day',
         # 'person': '2/day'
     }
 }
 
-SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),  
-}
+# SIMPLE_JWT = {
+#     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
+#     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),  
+# }
 
 LOGIN_REDIRECT_URL = '/v1/details'
 

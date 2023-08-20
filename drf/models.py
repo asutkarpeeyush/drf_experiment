@@ -1,7 +1,7 @@
 from django.db import models
 # from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, pre_save
 from django.conf import settings
 from rest_framework.authtoken.models import Token
 from django.dispatch import receiver
@@ -37,6 +37,12 @@ class Person(models.Model):
     def name_age(self):
         return self.name + "_" + str(self.age)
 
+
+@receiver(pre_save, sender=Person)
+def request_details(sender, instance, **kwargs):
+    print(f"instance : {instance}")
+    print(f"sender : {sender}")
+    print(f"instance name : {instance.name}")
 
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
 def create_auth_token(sender, instance, created=False, **kwargs):

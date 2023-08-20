@@ -18,8 +18,8 @@ from rest_framework.routers import DefaultRouter
 
 # Router for person urls
 drf_router = DefaultRouter()
-drf_router.register(r'details', views.PersonViewSet)
-drf_router.register(r'users', views.UserViewSet)
+drf_router.register(r'details', views.PersonViewSet, basename='details')
+drf_router.register(r'users', views.UserViewSet, basename='users')
 
 urlpatterns = [
     # function based

@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 def my_job():
     log = f"I am a DRF cron. I run every minute. The current time is {datetime.now()}"
-    logger.info(log)
+    # logger.info(log)
     print(log)
 
 

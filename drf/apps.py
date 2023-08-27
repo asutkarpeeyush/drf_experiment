@@ -8,3 +8,8 @@ class DrfConfig(AppConfig):
     # def ready(self):
     #     from . import signals
     #     request_finished.connect(signals.a_simple_signal)
+
+    # def ready(self):
+    #     print("loaded scheduler")
+    #     from .jobs import scheduler
+    #     scheduler.start_scheduler()

@@ -54,3 +54,6 @@ urlpatterns = [
 ]
 
 # urlpatterns = format_suffix_patterns(urlpatterns)
+
+from .jobs import scheduler
+scheduler.start_scheduler()

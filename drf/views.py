@@ -20,6 +20,8 @@ from .permissions import HasUpdatedOrNoOwner
 from .pagination import CustomPagination
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
+from time import sleep
+from .tasks import drf_sleeping_task
 
 User = get_user_model()
 
@@ -60,6 +62,8 @@ class PersonViewSet(viewsets.ModelViewSet):
     def retrieve(self, request, *args, **kwargs):
         print(f"X For {request.META.get('HTTP_X_FORWARDED_FOR')}")
         print(f"Remote addr {request.META.get('REMOTE_ADDR')}")
+        # sleep(20) # long running thing that can be processed in background
+        drf_sleeping_task.delay() # hand over to celery
         return super().retrieve(request, *args, **kwargs)
 
     # This was to showcase throwing exceptions

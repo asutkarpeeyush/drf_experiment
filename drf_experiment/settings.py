@@ -48,6 +48,11 @@ INSTALLED_APPS = [
 
     # documentation
     'drf_yasg',
+
+    # crons
+    # 'django_crontab',
+    # 'django_cron',
+    'django_apscheduler'
 ]
 
 MIDDLEWARE = [
@@ -191,3 +196,17 @@ REST_FRAMEWORK = {
 LOGIN_REDIRECT_URL = '/v1/details'
 
 # AUTH_USER_MODEL = 'users.DRFUser'
+
+# python manage.py crontab add
+# CRONJOBS = [
+#     ('*/1 * * * *', 'drf.cron.drf_cron')
+# ]
+# python manage.py runcrons
+# CRON_CLASSES = [
+#     'drf.cron.DRFCron'
+# ]
+
+
+# Celery settings
+CELERY_BROKER_URL = "redis://localhost:6379"
+CELERY_RESULT_BACKEND = "redis://localhost:6379"
